@@ -3,8 +3,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const errorHandler = require('broccoli-middleware/lib/utils/error-handler');
 
-module.exports = function(app) {
+module.exports = function(app, options) {
   app.get('*', (req, res, next) => {
     const accept = req.get('accept');
 
@@ -12,11 +13,18 @@ module.exports = function(app) {
       return next();
     }
 
-    const buffer = fs.readFileSync(
-      path.join(__dirname, '..', 'dist', 'index.html')
-    );
+    options.watcher.then((/* hash */) => {
+      const buffer = fs.readFileSync(
+        path.join(__dirname, '..', options.outputPath, 'index.html')
+      );
 
-    /* we do things with the document here before responding with request */
-    res.end(buffer);
+      /* we do things with the document here before responding with request */
+      res.end(buffer);
+    }, (buildError) => {
+      errorHandler(res, {
+        'buildError': buildError,
+        'liveReloadPath': options.liveReloadPath
+      });
+    });
   });
 };
