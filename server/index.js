@@ -12,12 +12,11 @@ module.exports = function(app) {
       return next();
     }
 
-    const index = fs.readFileSync(
-      path.join(__dirname, '..', 'dist', 'index.html'),
-      'utf8'
+    const buffer = fs.readFileSync(
+      path.join(__dirname, '..', 'dist', 'index.html')
     );
 
     /* we do things with the document here before responding with request */
-    res.send(index);
+    res.end(buffer);
   });
 };
